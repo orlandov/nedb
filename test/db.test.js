@@ -334,6 +334,30 @@ describe('Database', function () {
       });
     });
 
+    it('Can insert a document without specifying optional callback', function (done) {
+      d = new Datastore({ inMemoryOnly: true });
+      d.find({}, function (err, docs) {
+        docs.length.should.equal(0);
+
+        d.insert({ somedata: 'foos' });
+        d.insert({ somedata: 'ball' });
+        d.insert({ somedata: 'rulz' });
+
+        // Does not work without delay in between
+        setTimeout(function () {
+          d.find({}, function (err, docs) {
+            console.dir(docs);
+            docs.length.should.equal(3);
+            _.pluck(docs, 'somedata').should.contain('foos');
+            _.pluck(docs, 'somedata').should.contain('ball');
+            _.pluck(docs, 'somedata').should.contain('rulz');
+            done();
+          });
+        }, 50);
+      });
+    });
+
+
     it('Can insert multiple documents in the database', function (done) {
       d.find({}, function (err, docs) {
         docs.length.should.equal(0);
@@ -353,6 +377,7 @@ describe('Database', function () {
         });
       });
     });
+
 
     it('Can insert and get back from DB complex objects with all primitive and secondary types', function (done) {
       var da = new Date()
